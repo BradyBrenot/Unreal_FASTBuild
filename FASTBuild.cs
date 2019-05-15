@@ -679,6 +679,14 @@ namespace UnrealBuildTool
 
 			string OutputObjectFileName = GetOptionValue(ParsedCompilerOptions, IsMSVC() ? "/Fo" : "-o", Action, ProblemIfNotFound: !IsMSVC());
 
+			string LanguageEnding = ".cpp";
+			if(OutputObjectFileName != null
+				&& (OutputObjectFileName.EndsWith("c.obj")
+				|| OutputObjectFileName.EndsWith("c.o")))
+			{
+				LanguageEnding = ".c";
+			}
+
 			if (IsMSVC() && string.IsNullOrEmpty(OutputObjectFileName)) // Didn't find /Fo, try /fo
 			{
 				OutputObjectFileName = GetOptionValue(ParsedCompilerOptions, "/fo", Action, ProblemIfNotFound: true);
@@ -748,7 +756,7 @@ namespace UnrealBuildTool
 				string PCHOutputFile = GetOptionValue(ParsedCompilerOptions, "/Fp", Action, ProblemIfNotFound: true);
 				string PCHToForceInclude = PCHOutputFile.Replace(".pch", "");
 				AddText(string.Format("\t.CompilerOptions = '\"%1\" /Fo\"%2\" /Fp\"{0}\" /Yu\"{1}\" /FI\"{2}\" {3} '\n", PCHOutputFile, PCHIncludeHeader, PCHToForceInclude, OtherCompilerOptions));
-				CompilerOutputExtension = ".cpp.obj";
+				CompilerOutputExtension = LanguageEnding + ".obj";
 			}
 			else
 			{
@@ -762,12 +770,12 @@ namespace UnrealBuildTool
 					if (IsMSVC())
 					{
 						AddText(string.Format("\t.CompilerOptions = '{0} /Fo\"%2\" \"%1\" '\n", OtherCompilerOptions));
-						CompilerOutputExtension = ".cpp.obj";
+						CompilerOutputExtension = LanguageEnding + ".obj";
 					}
 					else
 					{
 						AddText(string.Format("\t.CompilerOptions = '{0} -o \"%2\" \"%1\" '\n", OtherCompilerOptions));
-						CompilerOutputExtension = ".cpp.o";
+						CompilerOutputExtension = LanguageEnding + ".o";
 					}
 				}
 			}
